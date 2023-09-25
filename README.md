@@ -100,7 +100,6 @@ module.exports = {
 }
 ```
 
-
 **`ignore`** [regex][optional]
 
 This plugin will try to match the absolute path of the file with the `ignore` regex.
@@ -113,6 +112,36 @@ module.exports = {
       resolve: `gatsby-transformer-gitinfo`,
       options: {
         ignore: /\.jpeg$/i, // All files except .jpeg
+      },
+    },
+  ],
+}
+```
+
+**`matching`** [object][optional]
+
+Return the last commit where the title or the body of the commit log matches
+the regex configured in the `matching` object.
+
+It has two keys:
+
+* `regex`: [string][required] the POSIX regex, as understood by `git log --grep`
+* `invert`: [bool][optional] whether to invert the match (default: `false`)
+
+If no commit matches, the file will be skipped.
+
+```javascript
+module.exports = {
+  plugins: [
+    {
+      resolve: `gatsby-transformer-gitinfo`,
+      options: {
+        // Return the latest commit whose commit message
+        // DOESN'T start with "skip-this:".
+        matching: {
+          regex: "^skip-this:",
+          invert: true,
+        }
       },
     },
   ],
