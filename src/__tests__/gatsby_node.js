@@ -316,4 +316,17 @@ describe(`Return the commit with the matching regex`, () => {
       value: `2005-08-05T05:05:05+00:00`,
     });
   });
+
+  it("should not add the node when nothing matches", async () => {
+    node.absolutePath = `${dummyRepoPath}/README.md`;
+    node.dir = dummyRepoPath;
+    await onCreateNode(createNodeSpec, {
+      include: /md/,
+      dir: dummyRepoPath,
+      matching: {
+        regex: "this doesn't match anything",
+      },
+    });
+    expect(createNodeField).not.toHaveBeenCalled();
+  });
 });
