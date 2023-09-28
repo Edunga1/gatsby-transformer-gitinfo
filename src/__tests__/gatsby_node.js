@@ -238,7 +238,7 @@ describe(`Returning the latest matching commit`, () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
       dir: dummyRepoPath,
-      matching: {
+      match: {
         regex: "^skip:",
         invert: true,
       }
@@ -267,7 +267,7 @@ describe(`Returning the latest matching commit`, () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
       dir: dummyRepoPath,
-      matching: {
+      match: {
         regex: "^pickme:",
       }
     });
@@ -295,7 +295,7 @@ describe(`Returning the latest matching commit`, () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
       dir: dummyRepoPath,
-      matching: {
+      match: {
         regex: "@magictag",
       },
     });
@@ -323,7 +323,7 @@ describe(`Returning the latest matching commit`, () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
       dir: dummyRepoPath,
-      matching: {
+      match: {
         regex: "this doesn't match anything",
       },
     });

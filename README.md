@@ -121,7 +121,7 @@ module.exports = {
 }
 ```
 
-### `matching` [object][optional]
+### `match` [object][optional]
 
 Return the latest commit where a given regex matches the title or body of the commit log.
 If no commit matches, the file is skipped.
@@ -139,7 +139,7 @@ module.exports = {
       options: {
         // Return the latest commit with a commit message
         // that does NOT start with "skip-this:".
-        matching: {
+        match: {
           regex: "^skip-this:",
           invert: true,
         }
