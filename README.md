@@ -149,7 +149,7 @@ module.exports = {
 }
 ```
 
-**`dir`** [string][optional]
+### **`dir`** [string][optional]
 
 The root of the git repository.
 Will use the current directory if not provided.
