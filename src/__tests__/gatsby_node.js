@@ -4,8 +4,6 @@ const path = require(`path`);
 const git = require("simple-git");
 const { onCreateNode } = require(`../gatsby-node`);
 
-const tmpDir = `./tmp-test/`;
-
 let createNodeField;
 let actions;
 let node;
@@ -194,6 +192,140 @@ describe(`Processing File nodes matching filter regex`, () => {
     await onCreateNode(createNodeSpec, {
       include: /unversionned/,
       dir: dummyRepoPath,
+    });
+    expect(createNodeField).not.toHaveBeenCalled();
+  });
+});
+
+describe(`Returning the latest matching commit`, () => {
+  beforeEach(async () => {
+    dummyRepoPath = fs.mkdtempSync(
+      path.join(os.tmpdir(), "gatsby-transform-gitinfo-")
+    );
+
+    const gitRepo = await initGitRepo(
+      dummyRepoPath,
+      "Some One",
+      "some@one.com",
+      "https://some.git.repo"
+    );
+
+    fs.writeFileSync(`${dummyRepoPath}/README.md`, "Hello");
+    await gitRepo.add("README.md");
+    await gitRepo.commit(["Add README", "Changing README, with @magictag in body"], "README.md", {
+      "--date": '"Mon 5 Aug 2005 05:05:05 UTC"',
+    });
+
+    fs.writeFileSync(`${dummyRepoPath}/README.md`, "update1");
+    await gitRepo.commit("pickme: update README", "README.md", {
+      "--date": '"Mon 10 Aug 2010 10:10:10 UTC"',
+    });
+
+    fs.writeFileSync(`${dummyRepoPath}/README.md`, "update2");
+    await gitRepo.commit("content: changing README", "README.md", {
+      "--date": '"Mon 15 Aug 2015 15:15:15 UTC"',
+    });
+
+    fs.writeFileSync(`${dummyRepoPath}/README.md`, "update3");
+    await gitRepo.commit("skip: Changing README", "README.md", {
+      "--date": '"Mon 20 Aug 2020 20:20:20 UTC"',
+    });
+  });
+
+  it("should add the latest commit without an inverted match in its log message", async () => {
+    node.absolutePath = `${dummyRepoPath}/README.md`;
+    node.dir = dummyRepoPath;
+    await onCreateNode(createNodeSpec, {
+      include: /md/,
+      dir: dummyRepoPath,
+      match: {
+        regex: "^skip:",
+        invert: true,
+      }
+    });
+    expect(createNodeField).toHaveBeenCalledTimes(3);
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorName`,
+      value: `Some One`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorEmail`,
+      value: `some@one.com`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestDate`,
+      value: `2015-08-15T15:15:15+00:00`,
+    });
+  });
+
+  it("should add the latest commit with a given match in its log message", async () => {
+    node.absolutePath = `${dummyRepoPath}/README.md`;
+    node.dir = dummyRepoPath;
+    await onCreateNode(createNodeSpec, {
+      include: /md/,
+      dir: dummyRepoPath,
+      match: {
+        regex: "^pickme:",
+      }
+    });
+    expect(createNodeField).toHaveBeenCalledTimes(3);
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorName`,
+      value: `Some One`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorEmail`,
+      value: `some@one.com`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestDate`,
+      value: `2010-08-10T10:10:10+00:00`,
+    });
+  });
+
+  it("should add the latest commit with a given match in the log message body", async () => {
+    node.absolutePath = `${dummyRepoPath}/README.md`;
+    node.dir = dummyRepoPath;
+    await onCreateNode(createNodeSpec, {
+      include: /md/,
+      dir: dummyRepoPath,
+      match: {
+        regex: "@magictag",
+      },
+    });
+    expect(createNodeField).toHaveBeenCalledTimes(3);
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorName`,
+      value: `Some One`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestAuthorEmail`,
+      value: `some@one.com`,
+    });
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: `gitLogLatestDate`,
+      value: `2005-08-05T05:05:05+00:00`,
+    });
+  });
+
+  it("should not add any nodes if nothing matches a given match", async () => {
+    node.absolutePath = `${dummyRepoPath}/README.md`;
+    node.dir = dummyRepoPath;
+    await onCreateNode(createNodeSpec, {
+      include: /md/,
+      dir: dummyRepoPath,
+      match: {
+        regex: "this doesn't match anything",
+      },
     });
     expect(createNodeField).not.toHaveBeenCalled();
   });

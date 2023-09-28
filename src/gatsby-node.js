@@ -2,7 +2,7 @@ const git = require(`simple-git`);
 const path = require("path");
 const fs = require("fs");
 
-async function getLogWithRetry(gitRepo, node, retry = 2) {
+async function getLogWithRetry(gitRepo, node, retry = 2, match = {}) {
   // Need retry, see https://github.com/steveukx/git-js/issues/302
   // Check again after v2 is released?
 
@@ -18,18 +18,27 @@ async function getLogWithRetry(gitRepo, node, retry = 2) {
     }
   );
 
-  const logOptions = {
+  let logOptions = {
     file: filePath,
     n: 1,
     format: {
       date: `%aI`,
       authorName: `%an`,
       authorEmail: "%ae",
+      message: "%B",
     },
   };
+
+  if (match?.regex) {
+    logOptions[`--grep`] = match.regex;
+  }
+  if (match?.invert) {
+    logOptions[`--invert-grep`] = match.invert;
+  }
+
   const log = await gitRepo.log(logOptions);
   if (!log.latest && retry > 0) {
-    return getLogWithRetry(gitRepo, node, retry - 1);
+    return getLogWithRetry(gitRepo, node, retry - 1, match);
   }
 
   return log;
@@ -62,7 +71,7 @@ async function onCreateNode({ node, actions }, pluginOptions) {
         })
       )
   );
-  const log = await getLogWithRetry(gitRepo, node);
+  const log = await getLogWithRetry(gitRepo, node, 2, pluginOptions.match);
 
   if (!log.latest) {
     return;
