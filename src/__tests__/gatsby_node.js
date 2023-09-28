@@ -197,7 +197,7 @@ describe(`Processing File nodes matching filter regex`, () => {
   });
 });
 
-describe(`Return the commit with the matching regex`, () => {
+describe(`Returning the latest matching commit`, () => {
   beforeEach(async () => {
     dummyRepoPath = fs.mkdtempSync(
       path.join(os.tmpdir(), "gatsby-transform-gitinfo-")
@@ -232,7 +232,7 @@ describe(`Return the commit with the matching regex`, () => {
     });
   });
 
-  it("should add the latest commit without 'skip:' in its message log", async () => {
+  it("should add the latest commit without an inverted match in its log message", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`;
     node.dir = dummyRepoPath;
     await onCreateNode(createNodeSpec, {
@@ -261,7 +261,7 @@ describe(`Return the commit with the matching regex`, () => {
     });
   });
 
-  it("should add the latest commit with 'pickme:' in its message log", async () => {
+  it("should add the latest commit with a given match in its log message", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`;
     node.dir = dummyRepoPath;
     await onCreateNode(createNodeSpec, {
@@ -289,7 +289,7 @@ describe(`Return the commit with the matching regex`, () => {
     });
   });
 
-  it("should add the latest commit with @magictag in the message log body", async () => {
+  it("should add the latest commit with a given match in the log message body", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`;
     node.dir = dummyRepoPath;
     await onCreateNode(createNodeSpec, {
@@ -317,7 +317,7 @@ describe(`Return the commit with the matching regex`, () => {
     });
   });
 
-  it("should not add the node when nothing matches", async () => {
+  it("should not add any nodes if nothing matches a given match", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`;
     node.dir = dummyRepoPath;
     await onCreateNode(createNodeSpec, {
