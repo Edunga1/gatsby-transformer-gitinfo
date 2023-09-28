@@ -1,11 +1,14 @@
 # gatsby-transformer-gitinfo
 
-Add some git information on `File` fields from latest commit: date, author, and email.
+Add some Git information on `File` fields from the latest (or latest matching) commit:
+date, author, and email.
 
 This fork was created to add information for files that are added via symlink,
-such as to combine files from other git repositories.
-The plugin will resolve the symlink to the original file
-and base the information on the git repository at the original location.
+such as to combine files from other Git repositories.
+The plugin resolves the symlink to the original file
+and base the information on the Git repository at the original location.
+
+You can also set the plugin to return the latest commit that [matches a given regex](#matching-objectoptional).
 
 ## Install
 
@@ -82,7 +85,7 @@ Now you have a `File` node to work with:
 
 ## Configuration options
 
-**`include`** [regex][optional]
+### `include` [regex][optional]
 
 This plugin will try to match the absolute path of the file with the `include` regex.
 If it *does not* match, the file will be skipped.
@@ -100,7 +103,7 @@ module.exports = {
 }
 ```
 
-**`ignore`** [regex][optional]
+### `ignore` [regex][optional]
 
 This plugin will try to match the absolute path of the file with the `ignore` regex.
 If it *does* match, the file will be skipped.
@@ -118,17 +121,15 @@ module.exports = {
 }
 ```
 
-**`matching`** [object][optional]
+### `matching` [object][optional]
 
-Return the last commit where the title or the body of the commit log matches
-the regex configured in the `matching` object.
+Return the latest commit where a given regex matches the title or body of the commit log.
+If no commit matches, the file is skipped.
 
-It has two keys:
+The object has two keys:
 
-* `regex`: [string][required] the POSIX regex, as understood by `git log --grep`
-* `invert`: [bool][optional] whether to invert the match (default: `false`)
-
-If no commit matches, the file will be skipped.
+* `regex`: [string][required] the [POSIX basic regular expression](https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions) to match
+* `invert`: [bool][optional] whether to invert the match (return the latest commit that does *not* match the regex) (default: `false`)
 
 ```javascript
 module.exports = {
@@ -136,8 +137,8 @@ module.exports = {
     {
       resolve: `gatsby-transformer-gitinfo`,
       options: {
-        // Return the latest commit whose commit message
-        // DOESN'T start with "skip-this:".
+        // Return the latest commit with a commit message
+        // that does NOT start with "skip-this:".
         matching: {
           regex: "^skip-this:",
           invert: true,
