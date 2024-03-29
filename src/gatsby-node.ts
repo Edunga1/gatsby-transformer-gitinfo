@@ -50,7 +50,7 @@ async function getLogWithRetry(
   return log;
 }
 
-const onCreateNode: GatsbyNode["onCreateNode"] = async (
+export const onCreateNode: GatsbyNode["onCreateNode"] = async (
   { node, actions },
   pluginOptions
 ) => {
