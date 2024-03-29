@@ -38,6 +38,7 @@ const initGitRepo = async (path, username, useremail, remote) => {
   await gitRepo.init();
   await gitRepo.addConfig("user.name", username);
   await gitRepo.addConfig("user.email", useremail);
+  await gitRepo.addConfig("commit.gpgSign", "false");
   await gitRepo.addRemote("origin", remote);
 
   return gitRepo;
