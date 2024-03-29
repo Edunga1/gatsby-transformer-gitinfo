@@ -1,24 +1,30 @@
-const git = require(`simple-git`);
-const path = require("path");
-const fs = require("fs");
+import { GatsbyNode, Node } from "gatsby"
+import git, { SimpleGit } from "simple-git"
+import path from "path"
+import fs from "fs"
 
-async function getLogWithRetry(gitRepo, node, retry = 2, match = {}) {
+async function getLogWithRetry(
+  gitRepo: SimpleGit,
+  node: Node,
+  retry = 2,
+  match: { regex?: string; invert?: string } = {},
+) {
   // Need retry, see https://github.com/steveukx/git-js/issues/302
   // Check again after v2 is released?
 
   const filePath = fs.realpathSync.native(
-    node.absolutePath,
-    (error, resolvedPath) => {
-      if (error) {
-        console.log(error);
-        return;
-      } else {
-        return resolvedPath;
-      }
-    }
+    node.absolutePath as string,
+    //(error, resolvedPath) => {
+    //  if (error) {
+    //    console.log(error);
+    //    return;
+    //  } else {
+    //    return resolvedPath;
+    //  }
+    //}
   );
 
-  let logOptions = {
+  const logOptions = {
     file: filePath,
     n: 1,
     format: {
@@ -44,7 +50,10 @@ async function getLogWithRetry(gitRepo, node, retry = 2, match = {}) {
   return log;
 }
 
-async function onCreateNode({ node, actions }, pluginOptions) {
+const onCreateNode: GatsbyNode["onCreateNode"] = async (
+  { node, actions },
+  pluginOptions
+) => {
   const { createNodeField } = actions;
 
   if (node.internal.type !== `File`) {
@@ -61,15 +70,15 @@ async function onCreateNode({ node, actions }, pluginOptions) {
 
   const gitRepo = git(
     pluginOptions.dir ||
-      path.dirname(
-        fs.realpathSync.native(node.absolutePath, (error, resolvedPath) => {
-          if (error) {
-            console.log(error);
-            return;
-          }
-          return resolvedPath;
-        })
-      )
+    path.dirname(
+      fs.realpathSync.native(node.absolutePath, (error, resolvedPath) => {
+        if (error) {
+          console.log(error);
+          return;
+        }
+        return resolvedPath;
+      })
+    )
   );
   const log = await getLogWithRetry(gitRepo, node, 2, pluginOptions.match);
 
