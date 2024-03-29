@@ -12,7 +12,7 @@ You can also set the plugin to return the latest commit that [matches a given re
 
 ## Install
 
-`yarn add @colliercz/gatsby-transformer-gitinfo`
+`npm install --save https://github.com/Edunga1/gatsby-transformer-gitinfo.git`
 
 **Note:** You also need to have `gatsby-source-filesystem` installed
 and configured so it points to your files.
@@ -30,7 +30,7 @@ module.exports = {
         path: `./src/data/`,
       },
     },
-    `@colliercz/gatsby-transformer-gitinfo`,
+    `gatsby-transformer-gitinfo`,
   ],
 }
 ```
