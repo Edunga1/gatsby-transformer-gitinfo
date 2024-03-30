@@ -27,9 +27,9 @@
     "url": "https://github.com/edunga1/gatsby-transformer-gitinfo.git"
   },
   "scripts": {
-    "build": "babel src --out-dir . --ignore **/__tests__",
+    "build": "babel src --out-dir . --ignore **/*.spec.js",
     "prepare": "cross-env NODE_ENV=production npm run build",
-    "watch": "babel -w src --out-dir . --ignore **/__tests__",
+    "watch": "babel -w src --out-dir . --ignore **/*.spec.js",
     "test": "jest"
   },
   "engines": {
