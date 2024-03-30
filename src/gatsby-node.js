@@ -1,6 +1,5 @@
 import { realpathSync } from "fs"
 import { dirname } from "path"
-import { realpathSync as _realpathSync } from "fs"
 import git from "simple-git"
 
 /**
@@ -27,18 +26,18 @@ async function getLogWithRetry(
     file: filePath,
     n: 1,
     format: {
-      date: `%aI`,
-      authorName: `%an`,
+      date: "%aI",
+      authorName: "%an",
       authorEmail: "%ae",
       message: "%B",
     },
   }
 
   if (match?.regex) {
-    logOptions[`--grep`] = match.regex
+    logOptions["--grep"] = match.regex
   }
   if (match?.invert) {
-    logOptions[`--invert-grep`] = match.invert
+    logOptions["--invert-grep"] = match.invert
   }
 
   const log = await gitRepo.log(logOptions)
@@ -56,7 +55,7 @@ export const onCreateNode = async (
 ) => {
   const { createNodeField } = actions
 
-  if (node.internal.type !== `File`) {
+  if (node.internal.type !== "File") {
     return
   }
 
@@ -71,7 +70,7 @@ export const onCreateNode = async (
   const gitRepo = git(
     pluginOptions.dir ||
     dirname(
-      _realpathSync.native(node.absolutePath, (error, resolvedPath) => {
+      realpathSync.native(node.absolutePath, (error, resolvedPath) => {
         if (error) {
           console.log(error)
           return
@@ -88,17 +87,17 @@ export const onCreateNode = async (
 
   createNodeField({
     node,
-    name: `gitLogLatestAuthorName`,
+    name: "gitLogLatestAuthorName",
     value: log.latest.authorName,
   })
   createNodeField({
     node,
-    name: `gitLogLatestAuthorEmail`,
+    name: "gitLogLatestAuthorEmail",
     value: log.latest.authorEmail,
   })
   createNodeField({
     node,
-    name: `gitLogLatestDate`,
+    name: "gitLogLatestDate",
     value: log.latest.date,
   })
 }

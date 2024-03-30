@@ -17,9 +17,9 @@ beforeEach(() => {
   actions = { createNodeField }
 
   node = {
-    absolutePath: `/some/path/file.mdx`,
-    dir: `/some/path`,
-    id: `whatever`,
+    absolutePath: "/some/path/file.mdx",
+    dir: "/some/path",
+    id: "whatever",
     parent: null,
     children: [],
     internal: {
@@ -45,28 +45,28 @@ const initGitRepo = async (path, username, useremail, remote) => {
   return gitRepo
 }
 
-describe(`Processing nodes not matching initial filtering`, () => {
-  it(`should not add any field when internal type is not 'File'`, async () => {
+describe("Processing nodes not matching initial filtering", () => {
+  it("should not add any field when internal type is not 'File'", async () => {
     node.internal.type = "Other"
     await onCreateNode(createNodeSpec)
     expect(createNodeField).not.toHaveBeenCalled()
   })
 
-  it(`should not add any field when full path is not in include`, async () => {
+  it("should not add any field when full path is not in include", async () => {
     await onCreateNode(createNodeSpec, {
       include: /notmatching/,
     })
     expect(createNodeField).not.toHaveBeenCalled()
   })
 
-  it(`should not add any field when full path is in ignore`, async () => {
+  it("should not add any field when full path is in ignore", async () => {
     await onCreateNode(createNodeSpec, {
       ignore: /some\/path\/file/,
     })
     expect(createNodeField).not.toHaveBeenCalled()
   })
 
-  it(`should not add any field when full path is in include and in ignore`, async () => {
+  it("should not add any field when full path is in include and in ignore", async () => {
     await onCreateNode(createNodeSpec, {
       include: /mdx/,
       ignore: /some\/path\/file/,
@@ -75,7 +75,7 @@ describe(`Processing nodes not matching initial filtering`, () => {
   })
 })
 
-describe(`Processing File nodes matching filter regex`, () => {
+describe("Processing File nodes matching filter regex", () => {
   beforeEach(async () => {
     dummyRepoPath = mkdtempSync(
       join(tmpdir(), "gatsby-transform-gitinfo-")
@@ -127,18 +127,18 @@ describe(`Processing File nodes matching filter regex`, () => {
     expect(createNodeField).toHaveBeenCalledTimes(3)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorName`,
-      value: `Some One`,
+      name: "gitLogLatestAuthorName",
+      value: "Some One",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorEmail`,
-      value: `some@one.com`,
+      name: "gitLogLatestAuthorEmail",
+      value: "some@one.com",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestDate`,
-      value: `2018-08-20T20:19:19+00:00`,
+      name: "gitLogLatestDate",
+      value: "2018-08-20T20:19:19+00:00",
     })
   })
 
