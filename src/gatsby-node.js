@@ -3,6 +3,18 @@ import { dirname } from "path"
 import { realpathSync as _realpathSync } from "fs"
 import git from "simple-git"
 
+/**
+  * @typedef {import("gatsby").GatsbyNode} GatsbyNode
+  * @typedef {import("gatsby").Node} Node
+  * @typedef {import("simple-git").SimpleGit} SimpleGit
+  */
+
+/**
+  * @param {SimpleGit} gitRepo
+  * @param {Node} node
+  * @param {number} retry
+  * @param {{ regex?: string; invert?: boolean }} match
+  */
 async function getLogWithRetry(
   gitRepo,
   node,
@@ -37,10 +49,11 @@ async function getLogWithRetry(
   return log
 }
 
-export async function onCreateNode(
+/** @type {GatsbyNode["onCreateNode"]} */
+export const onCreateNode = async (
   { node, actions },
   pluginOptions
-) {
+) => {
   const { createNodeField } = actions
 
   if (node.internal.type !== `File`) {
