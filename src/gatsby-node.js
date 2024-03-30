@@ -1,15 +1,15 @@
-import { GatsbyNode, Node } from "gatsby"
-import git, { SimpleGit } from "simple-git"
-import path from "path"
-import fs from "fs"
+import { realpathSync } from "fs";
+import { dirname } from "path";
+import { realpathSync as _realpathSync } from "fs";
+import git from "simple-git";
 
 async function getLogWithRetry(
-  gitRepo: SimpleGit,
-  node: Node,
+  gitRepo,
+  node,
   retry = 2,
-  match: { regex?: string; invert?: string } = {},
+  match = {},
 ) {
-  const filePath = fs.realpathSync.native(node.absolutePath as string)
+  const filePath = realpathSync.native(node.absolutePath);
 
   const logOptions = {
     file: filePath,
@@ -20,72 +20,72 @@ async function getLogWithRetry(
       authorEmail: "%ae",
       message: "%B",
     },
-  }
+  };
 
   if (match?.regex) {
-    logOptions[`--grep`] = match.regex
+    logOptions[`--grep`] = match.regex;
   }
   if (match?.invert) {
-    logOptions[`--invert-grep`] = match.invert
+    logOptions[`--invert-grep`] = match.invert;
   }
 
-  const log = await gitRepo.log(logOptions)
+  const log = await gitRepo.log(logOptions);
   if (!log.latest && retry > 0) {
-    return getLogWithRetry(gitRepo, node, retry - 1, match)
+    return getLogWithRetry(gitRepo, node, retry - 1, match);
   }
 
-  return log
+  return log;
 }
 
-export const onCreateNode: GatsbyNode["onCreateNode"] = async (
+export async function onCreateNode(
   { node, actions },
   pluginOptions
-) => {
-  const { createNodeField } = actions
+) {
+  const { createNodeField } = actions;
 
   if (node.internal.type !== `File`) {
-    return
+    return;
   }
 
   if (pluginOptions.include && !pluginOptions.include.test(node.absolutePath)) {
-    return
+    return;
   }
 
   if (pluginOptions.ignore && pluginOptions.ignore.test(node.absolutePath)) {
-    return
+    return;
   }
 
   const gitRepo = git(
     pluginOptions.dir ||
-    path.dirname(
-      fs.realpathSync.native(node.absolutePath, (error, resolvedPath) => {
+    dirname(
+      _realpathSync.native(node.absolutePath, (error, resolvedPath) => {
         if (error) {
-          console.log(error)
-          return
+          console.log(error);
+          return;
         }
-        return resolvedPath
+        return resolvedPath;
       })
     )
-  )
-  const log = await getLogWithRetry(gitRepo, node, 2, pluginOptions.match)
+  );
+  const log = await getLogWithRetry(gitRepo, node, 2, pluginOptions.match);
 
   if (!log.latest) {
-    return
+    return;
   }
 
   createNodeField({
     node,
     name: `gitLogLatestAuthorName`,
     value: log.latest.authorName,
-  })
+  });
   createNodeField({
     node,
     name: `gitLogLatestAuthorEmail`,
     value: log.latest.authorEmail,
-  })
+  });
   createNodeField({
     node,
     name: `gitLogLatestDate`,
     value: log.latest.date,
-  })
+  });
 }
