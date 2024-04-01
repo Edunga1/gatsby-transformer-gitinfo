@@ -21,23 +21,19 @@ async function getLogWithRetry(
   match = {},
 ) {
   const filePath = realpathSync.native(node.absolutePath)
-
-  const logOptions = {
-    file: filePath,
-    n: 1,
-    format: {
-      date: "%aI",
-      authorName: "%an",
-      authorEmail: "%ae",
-      message: "%B",
-    },
-  }
+  const optional = {}
 
   if (match?.regex) {
-    logOptions["--grep"] = match.regex
+    optional["--grep"] = match.regex
   }
+
   if (match?.invert) {
-    logOptions["--invert-grep"] = match.invert
+    optional["--invert-grep"] = match.invert
+  }
+
+  const logOptions = {
+    ...optional,
+    [filePath]: null,
   }
 
   const log = await gitRepo.log(logOptions)
@@ -88,12 +84,12 @@ export const onCreateNode = async (
   createNodeField({
     node,
     name: "gitLogLatestAuthorName",
-    value: log.latest.authorName,
+    value: log.latest.author_name,
   })
   createNodeField({
     node,
     name: "gitLogLatestAuthorEmail",
-    value: log.latest.authorEmail,
+    value: log.latest.author_email,
   })
   createNodeField({
     node,
