@@ -150,18 +150,18 @@ describe("Processing File nodes matching filter regex", () => {
     expect(createNodeField).toHaveBeenCalledTimes(3)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorName`,
-      value: `Some One Else`,
+      name: "gitLogLatestAuthorName",
+      value: "Some One Else",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorEmail`,
-      value: `someone@else.com`,
+      name: "gitLogLatestAuthorEmail",
+      value: "someone@else.com",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestDate`,
-      value: `2018-08-20T21:19:19+00:00`,
+      name: "gitLogLatestDate",
+      value: "2018-08-20T21:19:19+00:00",
     })
   })
 
@@ -173,18 +173,18 @@ describe("Processing File nodes matching filter regex", () => {
     expect(createNodeField).toHaveBeenCalledTimes(3)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorName`,
-      value: `Some One Else`,
+      name: "gitLogLatestAuthorName",
+      value: "Some One Else",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorEmail`,
-      value: `someone@else.com`,
+      name: "gitLogLatestAuthorEmail",
+      value: "someone@else.com",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestDate`,
-      value: `2018-08-20T21:19:19+00:00`,
+      name: "gitLogLatestDate",
+      value: "2018-08-20T21:19:19+00:00",
     })
   })
 
@@ -199,7 +199,7 @@ describe("Processing File nodes matching filter regex", () => {
   })
 })
 
-describe(`Returning the latest matching commit`, () => {
+describe("Returning the latest matching commit", () => {
   beforeEach(async () => {
     dummyRepoPath = mkdtempSync(
       join(tmpdir(), "gatsby-transform-gitinfo-")
@@ -248,18 +248,18 @@ describe(`Returning the latest matching commit`, () => {
     expect(createNodeField).toHaveBeenCalledTimes(3)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorName`,
-      value: `Some One`,
+      name: "gitLogLatestAuthorName",
+      value: "Some One",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorEmail`,
-      value: `some@one.com`,
+      name: "gitLogLatestAuthorEmail",
+      value: "some@one.com",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestDate`,
-      value: `2015-08-15T15:15:15+00:00`,
+      name: "gitLogLatestDate",
+      value: "2015-08-15T15:15:15+00:00",
     })
   })
 
@@ -276,18 +276,18 @@ describe(`Returning the latest matching commit`, () => {
     expect(createNodeField).toHaveBeenCalledTimes(3)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorName`,
-      value: `Some One`,
+      name: "gitLogLatestAuthorName",
+      value: "Some One",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorEmail`,
-      value: `some@one.com`,
+      name: "gitLogLatestAuthorEmail",
+      value: "some@one.com",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestDate`,
-      value: `2010-08-10T10:10:10+00:00`,
+      name: "gitLogLatestDate",
+      value: "2010-08-10T10:10:10+00:00",
     })
   })
 
@@ -304,18 +304,18 @@ describe(`Returning the latest matching commit`, () => {
     expect(createNodeField).toHaveBeenCalledTimes(3)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorName`,
-      value: `Some One`,
+      name: "gitLogLatestAuthorName",
+      value: "Some One",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestAuthorEmail`,
-      value: `some@one.com`,
+      name: "gitLogLatestAuthorEmail",
+      value: "some@one.com",
     })
     expect(createNodeField).toHaveBeenCalledWith({
       node,
-      name: `gitLogLatestDate`,
-      value: `2005-08-05T05:05:05+00:00`,
+      name: "gitLogLatestDate",
+      value: "2005-08-05T05:05:05+00:00",
     })
   })
 
