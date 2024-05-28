@@ -138,7 +138,7 @@ describe("Processing File nodes matching filter regex", () => {
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestDate",
-      value: "2018-08-20T20:19:19+00:00",
+      value: "2018-08-20T20:19:19Z",
     })
   })
 
@@ -161,7 +161,7 @@ describe("Processing File nodes matching filter regex", () => {
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestDate",
-      value: "2018-08-20T21:19:19+00:00",
+      value: "2018-08-20T21:19:19Z",
     })
   })
 
@@ -184,7 +184,7 @@ describe("Processing File nodes matching filter regex", () => {
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestDate",
-      value: "2018-08-20T21:19:19+00:00",
+      value: "2018-08-20T21:19:19Z",
     })
   })
 
@@ -259,7 +259,7 @@ describe("Returning the latest matching commit", () => {
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestDate",
-      value: "2015-08-15T15:15:15+00:00",
+      value: "2015-08-15T15:15:15Z",
     })
   })
 
@@ -287,7 +287,7 @@ describe("Returning the latest matching commit", () => {
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestDate",
-      value: "2010-08-10T10:10:10+00:00",
+      value: "2010-08-10T10:10:10Z",
     })
   })
 
@@ -315,7 +315,7 @@ describe("Returning the latest matching commit", () => {
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestDate",
-      value: "2005-08-05T05:05:05+00:00",
+      value: "2005-08-05T05:05:05Z",
     })
   })
 
