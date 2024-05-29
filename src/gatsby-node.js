@@ -96,4 +96,9 @@ export const onCreateNode = async (
     name: "gitLogLatestDate",
     value: log.latest.date,
   })
+  createNodeField({
+    node,
+    name: "gitLogLatestHash",
+    value: log.latest.hash,
+  })
 }

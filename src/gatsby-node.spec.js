@@ -124,7 +124,7 @@ describe("Processing File nodes matching filter regex", () => {
       include: /md/,
       dir: dummyRepoPath,
     })
-    expect(createNodeField).toHaveBeenCalledTimes(3)
+    expect(createNodeField).toHaveBeenCalledTimes(4)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestAuthorName",
@@ -140,6 +140,11 @@ describe("Processing File nodes matching filter regex", () => {
       name: "gitLogLatestDate",
       value: "2018-08-20T20:19:19Z",
     })
+    expect(createNodeField).toHaveBeenCalledWith({
+      node,
+      name: "gitLogLatestHash",
+      value: expect.any(String),
+    })
   })
 
   it("should add log and remote git info to file from symlink folder", async () => {
@@ -147,7 +152,7 @@ describe("Processing File nodes matching filter regex", () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
     })
-    expect(createNodeField).toHaveBeenCalledTimes(3)
+    expect(createNodeField).toHaveBeenCalledTimes(4)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestAuthorName",
@@ -170,7 +175,7 @@ describe("Processing File nodes matching filter regex", () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
     })
-    expect(createNodeField).toHaveBeenCalledTimes(3)
+    expect(createNodeField).toHaveBeenCalledTimes(4)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestAuthorName",
@@ -245,7 +250,7 @@ describe("Returning the latest matching commit", () => {
         invert: true,
       }
     })
-    expect(createNodeField).toHaveBeenCalledTimes(3)
+    expect(createNodeField).toHaveBeenCalledTimes(4)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestAuthorName",
@@ -273,7 +278,7 @@ describe("Returning the latest matching commit", () => {
         regex: "^pickme:",
       }
     })
-    expect(createNodeField).toHaveBeenCalledTimes(3)
+    expect(createNodeField).toHaveBeenCalledTimes(4)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestAuthorName",
@@ -301,7 +306,7 @@ describe("Returning the latest matching commit", () => {
         regex: "@magictag",
       },
     })
-    expect(createNodeField).toHaveBeenCalledTimes(3)
+    expect(createNodeField).toHaveBeenCalledTimes(4)
     expect(createNodeField).toHaveBeenCalledWith({
       node,
       name: "gitLogLatestAuthorName",
