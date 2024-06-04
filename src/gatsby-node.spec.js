@@ -3,7 +3,8 @@ import { tmpdir } from "os"
 import { join } from "path"
 import git from "simple-git"
 import { onCreateNode } from "./gatsby-node"
-import { beforeEach, describe, expect, it, jest } from "@jest/globals"
+import { beforeEach, describe, it, mock } from "node:test"
+import assert from "node:assert"
 
 let createNodeField
 let actions
@@ -13,7 +14,7 @@ let dummyRepoPath
 let dummyOtherRepoPath
 
 beforeEach(() => {
-  createNodeField = jest.fn()
+  createNodeField = mock.fn()
   actions = { createNodeField }
 
   node = {
@@ -45,25 +46,32 @@ const initGitRepo = async (path, username, useremail, remote) => {
   return gitRepo
 }
 
+function assertGitLogHash({ node, name, value }) {
+  assert.strictEqual(Object.keys(createNodeField.mock.calls[3].arguments[0]).length, 3)
+  assert.strictEqual(node, node)
+  assert.strictEqual(name, "gitLogLatestHash")
+  assert.ok(typeof value === "string")
+}
+
 describe("Processing nodes not matching initial filtering", () => {
   it("should not add any field when internal type is not 'File'", async () => {
     node.internal.type = "Other"
     await onCreateNode(createNodeSpec)
-    expect(createNodeField).not.toHaveBeenCalled()
+    assert.strictEqual(createNodeField.mock.callCount(), 0)
   })
 
   it("should not add any field when full path is not in include", async () => {
     await onCreateNode(createNodeSpec, {
       include: /notmatching/,
     })
-    expect(createNodeField).not.toHaveBeenCalled()
+    assert.strictEqual(createNodeField.mock.callCount(), 0)
   })
 
   it("should not add any field when full path is in ignore", async () => {
     await onCreateNode(createNodeSpec, {
       ignore: /some\/path\/file/,
     })
-    expect(createNodeField).not.toHaveBeenCalled()
+    assert.strictEqual(createNodeField.mock.callCount(), 0)
   })
 
   it("should not add any field when full path is in include and in ignore", async () => {
@@ -71,7 +79,7 @@ describe("Processing nodes not matching initial filtering", () => {
       include: /mdx/,
       ignore: /some\/path\/file/,
     })
-    expect(createNodeField).not.toHaveBeenCalled()
+    assert.strictEqual(createNodeField.mock.callCount(), 0)
   })
 })
 
@@ -124,27 +132,29 @@ describe("Processing File nodes matching filter regex", () => {
       include: /md/,
       dir: dummyRepoPath,
     })
-    expect(createNodeField).toHaveBeenCalledTimes(4)
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorName",
-      value: "Some One",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorEmail",
-      value: "some@one.com",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestDate",
-      value: "2018-08-20T20:19:19Z",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestHash",
-      value: expect.any(String),
-    })
+    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorName",
+        value: "Some One",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorEmail",
+        value: "some@one.com",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
+      {
+        node,
+        name: "gitLogLatestDate",
+        value: "2018-08-20T20:19:19Z",
+      },
+    ])
+    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
   })
 
   it("should add log and remote git info to file from symlink folder", async () => {
@@ -152,22 +162,29 @@ describe("Processing File nodes matching filter regex", () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
     })
-    expect(createNodeField).toHaveBeenCalledTimes(4)
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorName",
-      value: "Some One Else",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorEmail",
-      value: "someone@else.com",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestDate",
-      value: "2018-08-20T21:19:19Z",
-    })
+    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorName",
+        value: "Some One Else",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorEmail",
+        value: "someone@else.com",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
+      {
+        node,
+        name: "gitLogLatestDate",
+        value: "2018-08-20T21:19:19Z",
+      },
+    ])
+    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
   })
 
   it("should add log and remote git info to file from symlink file", async () => {
@@ -175,22 +192,29 @@ describe("Processing File nodes matching filter regex", () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
     })
-    expect(createNodeField).toHaveBeenCalledTimes(4)
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorName",
-      value: "Some One Else",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorEmail",
-      value: "someone@else.com",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestDate",
-      value: "2018-08-20T21:19:19Z",
-    })
+    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorName",
+        value: "Some One Else",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorEmail",
+        value: "someone@else.com",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
+      {
+        node,
+        name: "gitLogLatestDate",
+        value: "2018-08-20T21:19:19Z",
+      },
+    ])
+    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
   })
 
   it("should not add log or remote git info to unversionned File node", async () => {
@@ -200,7 +224,7 @@ describe("Processing File nodes matching filter regex", () => {
       include: /unversionned/,
       dir: dummyRepoPath,
     })
-    expect(createNodeField).not.toHaveBeenCalled()
+    assert.strictEqual(createNodeField.mock.callCount(), 0)
   })
 })
 
@@ -250,22 +274,29 @@ describe("Returning the latest matching commit", () => {
         invert: true,
       }
     })
-    expect(createNodeField).toHaveBeenCalledTimes(4)
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorName",
-      value: "Some One",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorEmail",
-      value: "some@one.com",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestDate",
-      value: "2015-08-15T15:15:15Z",
-    })
+    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorName",
+        value: "Some One",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorEmail",
+        value: "some@one.com",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
+      {
+        node,
+        name: "gitLogLatestDate",
+        value: "2015-08-15T15:15:15Z",
+      },
+    ])
+    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
   })
 
   it("should add the latest commit with a given match in its log message", async () => {
@@ -278,22 +309,29 @@ describe("Returning the latest matching commit", () => {
         regex: "^pickme:",
       }
     })
-    expect(createNodeField).toHaveBeenCalledTimes(4)
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorName",
-      value: "Some One",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorEmail",
-      value: "some@one.com",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestDate",
-      value: "2010-08-10T10:10:10Z",
-    })
+    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorName",
+        value: "Some One",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorEmail",
+        value: "some@one.com",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
+      {
+        node,
+        name: "gitLogLatestDate",
+        value: "2010-08-10T10:10:10Z",
+      },
+    ])
+    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
   })
 
   it("should add the latest commit with a given match in the log message body", async () => {
@@ -306,22 +344,29 @@ describe("Returning the latest matching commit", () => {
         regex: "@magictag",
       },
     })
-    expect(createNodeField).toHaveBeenCalledTimes(4)
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorName",
-      value: "Some One",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestAuthorEmail",
-      value: "some@one.com",
-    })
-    expect(createNodeField).toHaveBeenCalledWith({
-      node,
-      name: "gitLogLatestDate",
-      value: "2005-08-05T05:05:05Z",
-    })
+    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorName",
+        value: "Some One",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
+      {
+        node,
+        name: "gitLogLatestAuthorEmail",
+        value: "some@one.com",
+      },
+    ])
+    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
+      {
+        node,
+        name: "gitLogLatestDate",
+        value: "2005-08-05T05:05:05Z",
+      },
+    ])
+    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
   })
 
   it("should not add any nodes if nothing matches a given match", async () => {
@@ -334,6 +379,6 @@ describe("Returning the latest matching commit", () => {
         regex: "this doesn't match anything",
       },
     })
-    expect(createNodeField).not.toHaveBeenCalled()
+    assert.strictEqual(createNodeField.mock.callCount(), 0)
   })
 })
