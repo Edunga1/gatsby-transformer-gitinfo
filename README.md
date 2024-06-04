@@ -1,5 +1,7 @@
 # gatsby-transformer-gitinfo
 
+This is forked from [CollierCZ/gatsby-transformer-gitinfo](https://github.com/CollierCZ/gatsby-transformer-gitinfo)
+
 Add some Git information on `File` fields from the latest (or latest matching) commit:
 date, author, and email.
 
