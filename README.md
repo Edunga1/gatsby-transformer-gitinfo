@@ -40,7 +40,7 @@ module.exports = {
 Where the _source folder_ `./src/data/` is a git versioned directory.
 
 The plugin will add several fields to `File` nodes:
-`gitLogLatestAuthorName`, `gitLogLatestAuthorEmail`, and `gitLogLatestDate`.
+`gitLogLatestAuthorName`, `gitLogLatestAuthorEmail`, `gitLogLatestDate` and `gitLogLatestHash`
 These fields are related to the latest commit touching that file.
 
 If the file is not versionned, these fields will be `null`.
@@ -56,6 +56,7 @@ query {
           gitLogLatestAuthorName
           gitLogLatestAuthorEmail
           gitLogLatestDate
+          gitLogLatestHash
         }
       }
     }
@@ -75,7 +76,8 @@ Now you have a `File` node to work with:
             "fields": {
               "gitLogLatestAuthorName":"John Doe",
               "gitLogLatestAuthorEmail": "john.doe@github.com",
-              "gitLogLatestDate": "2020-10-14T12:58:39.000Z"
+              "gitLogLatestDate": "2020-10-14T12:58:39.000Z",
+              "gitLogLatestHash": "c3b6898b288b3d8844ec9e4d1c72dc049b5aeea2"
             }
           }
         }
