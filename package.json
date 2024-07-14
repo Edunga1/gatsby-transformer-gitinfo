@@ -31,7 +31,8 @@
     "prepare": "cross-env NODE_ENV=production npm run build",
     "watch": "babel -w src --out-dir . --ignore **/*.test.js",
     "test": "node -r @babel/register --test",
-    "testw": "node -r @babel/register --test --watch"
+    "testw": "node -r @babel/register --test --watch",
+    "debug": "babel-node debug.js"
   },
   "engines": {
     "node": ">=8.0.0"
