@@ -52,14 +52,17 @@ export const onCreateNode = async (
   const { createNodeField } = actions
 
   if (node.internal.type !== "File") {
+    createNodeField(createNode(node))
     return
   }
 
   if (pluginOptions.include && !pluginOptions.include.test(node.absolutePath)) {
+    createNodeField(createNode(node))
     return
   }
 
   if (pluginOptions.ignore && pluginOptions.ignore.test(node.absolutePath)) {
+    createNodeField(createNode(node))
     return
   }
 
@@ -77,28 +80,28 @@ export const onCreateNode = async (
   )
   const log = await getLogWithRetry(gitRepo, node, 2, pluginOptions.match)
 
-  if (!log.latest) {
-    return
-  }
+  createNodeField(createNode(node, mapLogs(log.all, pluginOptions.limit || 10)))
+}
 
-  createNodeField({
+/**
+  * @param {import("simple-git").LogResult["all"]} log
+  * @param {number} limit -1 for all
+  * @returns {Array<{ authorName: string; authorEmail: string; date: string; hash: string }>}
+  * */
+function mapLogs(log, limit) {
+  const sliced = limit < 0 ? log : log.slice(0, limit)
+  return sliced.map((log) => ({
+    authorName: log.author_name,
+    authorEmail: log.author_email,
+    date: log.date,
+    hash: log.hash,
+  }))
+}
+
+function createNode(node, value = []) {
+  return {
     node,
-    name: "gitLogLatestAuthorName",
-    value: log.latest.author_name,
-  })
-  createNodeField({
-    node,
-    name: "gitLogLatestAuthorEmail",
-    value: log.latest.author_email,
-  })
-  createNodeField({
-    node,
-    name: "gitLogLatestDate",
-    value: log.latest.date,
-  })
-  createNodeField({
-    node,
-    name: "gitLogLatestHash",
-    value: log.latest.hash,
-  })
+    name: "gitLogs",
+    value,
+  }
 }

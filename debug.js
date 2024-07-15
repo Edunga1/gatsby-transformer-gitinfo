@@ -11,7 +11,7 @@ onCreateNode(
     },
     actions: {
       createNodeField: (node) => {
-        console.log(`${node.name}\t${node.value}`)
+        console.log(`${node.name.padEnd(25, ' ')}${formatValue(node.value)}`)
       },
     },
   },
@@ -19,3 +19,10 @@ onCreateNode(
     dir: ".",
   },
 )
+
+function formatValue(value) {
+  if (typeof value !== 'object') {
+    return value.toString()
+  }
+  return JSON.stringify(value)
+}

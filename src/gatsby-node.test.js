@@ -54,21 +54,42 @@ describe("Processing nodes not matching initial filtering", () => {
   it("should not add any field when internal type is not 'File'", async () => {
     node.internal.type = "Other"
     await onCreateNode(createNodeSpec)
-    assert.strictEqual(createNodeField.mock.callCount(), 0)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogs",
+        value: [],
+      },
+    ])
   })
 
   it("should not add any field when full path is not in include", async () => {
     await onCreateNode(createNodeSpec, {
       include: /notmatching/,
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 0)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogs",
+        value: [],
+      },
+    ])
   })
 
   it("should not add any field when full path is in ignore", async () => {
     await onCreateNode(createNodeSpec, {
       ignore: /some\/path\/file/,
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 0)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogs",
+        value: [],
+      },
+    ])
   })
 
   it("should not add any field when full path is in include and in ignore", async () => {
@@ -76,7 +97,14 @@ describe("Processing nodes not matching initial filtering", () => {
       include: /mdx/,
       ignore: /some\/path\/file/,
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 0)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogs",
+        value: [],
+      },
+    ])
   })
 })
 
@@ -134,33 +162,19 @@ describe("Processing File nodes matching filter regex", () => {
       include: /md/,
       dir: dummyRepoPath,
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
     assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
       {
         node,
-        name: "gitLogLatestAuthorName",
-        value: "Some One",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
-      {
-        node,
-        name: "gitLogLatestAuthorEmail",
-        value: "some@one.com",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
-      {
-        node,
-        name: "gitLogLatestDate",
-        value: "2018-08-20T20:19:19Z",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
-      {
-        node,
-        name: "gitLogLatestHash",
-        value: commitResult.commit,
+        name: "gitLogs",
+        value: [
+          {
+            authorName: "Some One",
+            authorEmail: "some@one.com",
+            date: "2018-08-20T20:19:19Z",
+            hash: commitResult.commit,
+          }
+        ],
       },
     ])
   })
@@ -170,33 +184,19 @@ describe("Processing File nodes matching filter regex", () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
     assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
       {
         node,
-        name: "gitLogLatestAuthorName",
-        value: "Some One Else",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
-      {
-        node,
-        name: "gitLogLatestAuthorEmail",
-        value: "someone@else.com",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
-      {
-        node,
-        name: "gitLogLatestDate",
-        value: "2018-08-20T21:19:19Z",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
-      {
-        node,
-        name: "gitLogLatestHash",
-        value: commitResultOtherRepo.commit,
+        name: "gitLogs",
+        value: [
+          {
+            authorName: "Some One Else",
+            authorEmail: "someone@else.com",
+            date: "2018-08-20T21:19:19Z",
+            hash: commitResultOtherRepo.commit,
+          }
+        ],
       },
     ])
   })
@@ -206,33 +206,19 @@ describe("Processing File nodes matching filter regex", () => {
     await onCreateNode(createNodeSpec, {
       include: /md/,
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
     assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
       {
         node,
-        name: "gitLogLatestAuthorName",
-        value: "Some One Else",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
-      {
-        node,
-        name: "gitLogLatestAuthorEmail",
-        value: "someone@else.com",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
-      {
-        node,
-        name: "gitLogLatestDate",
-        value: "2018-08-20T21:19:19Z",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
-      {
-        node,
-        name: "gitLogLatestHash",
-        value: commitResultOtherRepo.commit,
+        name: "gitLogs",
+        value: [
+          {
+            authorName: "Some One Else",
+            authorEmail: "someone@else.com",
+            date: "2018-08-20T21:19:19Z",
+            hash: commitResultOtherRepo.commit,
+          }
+        ],
       },
     ])
   })
@@ -244,11 +230,18 @@ describe("Processing File nodes matching filter regex", () => {
       include: /unversionned/,
       dir: dummyRepoPath,
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 0)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogs",
+        value: [],
+      },
+    ])
   })
 })
 
-describe("Returning the latest matching commit", () => {
+describe("Returning the matching commits", () => {
   /** @type {CommitResult[]} */
   let commitResults
 
@@ -295,7 +288,7 @@ describe("Returning the latest matching commit", () => {
     )
   })
 
-  it("should add the latest commit without an inverted match in its log message", async () => {
+  it("should add the commits without an inverted match in its log message", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`
     node.dir = dummyRepoPath
     await onCreateNode(createNodeSpec, {
@@ -306,38 +299,36 @@ describe("Returning the latest matching commit", () => {
         invert: true,
       }
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
     assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
       {
         node,
-        name: "gitLogLatestAuthorName",
-        value: "Some One",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
-      {
-        node,
-        name: "gitLogLatestAuthorEmail",
-        value: "some@one.com",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
-      {
-        node,
-        name: "gitLogLatestDate",
-        value: "2015-08-15T15:15:15Z",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
-      {
-        node,
-        name: "gitLogLatestHash",
-        value: commitResults[2].commit,
+        name: "gitLogs",
+        value: [
+          {
+            authorName: "Some One",
+            authorEmail: "some@one.com",
+            date: "2015-08-15T15:15:15Z",
+            hash: commitResults[2].commit,
+          },
+          {
+            authorEmail: 'some@one.com',
+            authorName: 'Some One',
+            date: "2010-08-10T10:10:10Z",
+            hash: commitResults[1].commit
+          },
+          {
+            authorEmail: 'some@one.com',
+            authorName: 'Some One',
+            date: "2005-08-05T05:05:05Z",
+            hash: commitResults[0].commit
+          },
+        ],
       },
     ])
   })
 
-  it("should add the latest commit with a given match in its log message", async () => {
+  it("should add a commit with a given match in its log message", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`
     node.dir = dummyRepoPath
     await onCreateNode(createNodeSpec, {
@@ -347,38 +338,24 @@ describe("Returning the latest matching commit", () => {
         regex: "^pickme:",
       }
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
     assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
       {
         node,
-        name: "gitLogLatestAuthorName",
-        value: "Some One",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
-      {
-        node,
-        name: "gitLogLatestAuthorEmail",
-        value: "some@one.com",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
-      {
-        node,
-        name: "gitLogLatestDate",
-        value: "2010-08-10T10:10:10Z",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
-      {
-        node,
-        name: "gitLogLatestHash",
-        value: commitResults[1].commit,
+        name: "gitLogs",
+        value: [
+          {
+            authorName: "Some One",
+            authorEmail: "some@one.com",
+            date: "2010-08-10T10:10:10Z",
+            hash: commitResults[1].commit,
+          }
+        ],
       },
     ])
   })
 
-  it("should add the latest commit with a given match in the log message body", async () => {
+  it("should add a commit with a given match in the log message body", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`
     node.dir = dummyRepoPath
     await onCreateNode(createNodeSpec, {
@@ -388,38 +365,24 @@ describe("Returning the latest matching commit", () => {
         regex: "@magictag",
       },
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 4)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
     assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
       {
         node,
-        name: "gitLogLatestAuthorName",
-        value: "Some One",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[1].arguments, [
-      {
-        node,
-        name: "gitLogLatestAuthorEmail",
-        value: "some@one.com",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[2].arguments, [
-      {
-        node,
-        name: "gitLogLatestDate",
-        value: "2005-08-05T05:05:05Z",
-      },
-    ])
-    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
-      {
-        node,
-        name: "gitLogLatestHash",
-        value: commitResults[0].commit,
+        name: "gitLogs",
+        value: [
+          {
+            authorName: "Some One",
+            authorEmail: "some@one.com",
+            date: "2005-08-05T05:05:05Z",
+            hash: commitResults[0].commit,
+          }
+        ],
       },
     ])
   })
 
-  it("should not add any nodes if nothing matches a given match", async () => {
+  it("should add an empty node if nothing matches a given match", async () => {
     node.absolutePath = `${dummyRepoPath}/README.md`
     node.dir = dummyRepoPath
     await onCreateNode(createNodeSpec, {
@@ -429,6 +392,13 @@ describe("Returning the latest matching commit", () => {
         regex: "this doesn't match anything",
       },
     })
-    assert.strictEqual(createNodeField.mock.callCount(), 0)
+    assert.strictEqual(createNodeField.mock.callCount(), 1)
+    assert.deepStrictEqual(createNodeField.mock.calls[0].arguments, [
+      {
+        node,
+        name: "gitLogs",
+        value: [],
+      },
+    ])
   })
 })
