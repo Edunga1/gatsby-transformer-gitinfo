@@ -6,6 +6,10 @@ import { onCreateNode } from "./gatsby-node"
 import { beforeEach, describe, it, mock } from "node:test"
 import assert from "node:assert"
 
+/**
+  * @typedef {import("simple-git").CommitResult} CommitResult
+  */
+
 let createNodeField
 let actions
 let node
@@ -46,13 +50,6 @@ const initGitRepo = async (path, username, useremail, remote) => {
   return gitRepo
 }
 
-function assertGitLogHash({ node, name, value }) {
-  assert.strictEqual(Object.keys(createNodeField.mock.calls[3].arguments[0]).length, 3)
-  assert.strictEqual(node, node)
-  assert.strictEqual(name, "gitLogLatestHash")
-  assert.ok(typeof value === "string")
-}
-
 describe("Processing nodes not matching initial filtering", () => {
   it("should not add any field when internal type is not 'File'", async () => {
     node.internal.type = "Other"
@@ -84,6 +81,11 @@ describe("Processing nodes not matching initial filtering", () => {
 })
 
 describe("Processing File nodes matching filter regex", () => {
+  /** @type {CommitResult} */
+  let commitResult
+  /** @type {CommitResult} */
+  let commitResultOtherRepo
+
   beforeEach(async () => {
     dummyRepoPath = mkdtempSync(
       join(tmpdir(), "gatsby-transform-gitinfo-")
@@ -98,7 +100,7 @@ describe("Processing File nodes matching filter regex", () => {
 
     writeFileSync(`${dummyRepoPath}/README.md`, "Hello")
     await gitRepo.add("README.md")
-    await gitRepo.commit("Add README", "README.md", {
+    commitResult = await gitRepo.commit("Add README", "README.md", {
       "--date": '"Mon 20 Aug 2018 20:19:19 UTC"',
     })
 
@@ -117,7 +119,7 @@ describe("Processing File nodes matching filter regex", () => {
 
     writeFileSync(`${dummyOtherRepoPath}/CONTENT.md`, "Hello")
     await gitOtherRepo.add("CONTENT.md")
-    await gitOtherRepo.commit("Add CONTENT", "CONTENT.md", {
+    commitResultOtherRepo = await gitOtherRepo.commit("Add CONTENT", "CONTENT.md", {
       "--date": '"Mon 20 Aug 2018 21:19:19 UTC"',
     })
 
@@ -154,7 +156,13 @@ describe("Processing File nodes matching filter regex", () => {
         value: "2018-08-20T20:19:19Z",
       },
     ])
-    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
+    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
+      {
+        node,
+        name: "gitLogLatestHash",
+        value: commitResult.commit,
+      },
+    ])
   })
 
   it("should add log and remote git info to file from symlink folder", async () => {
@@ -184,7 +192,13 @@ describe("Processing File nodes matching filter regex", () => {
         value: "2018-08-20T21:19:19Z",
       },
     ])
-    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
+    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
+      {
+        node,
+        name: "gitLogLatestHash",
+        value: commitResultOtherRepo.commit,
+      },
+    ])
   })
 
   it("should add log and remote git info to file from symlink file", async () => {
@@ -214,7 +228,13 @@ describe("Processing File nodes matching filter regex", () => {
         value: "2018-08-20T21:19:19Z",
       },
     ])
-    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
+    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
+      {
+        node,
+        name: "gitLogLatestHash",
+        value: commitResultOtherRepo.commit,
+      },
+    ])
   })
 
   it("should not add log or remote git info to unversionned File node", async () => {
@@ -229,7 +249,11 @@ describe("Processing File nodes matching filter regex", () => {
 })
 
 describe("Returning the latest matching commit", () => {
+  /** @type {CommitResult[]} */
+  let commitResults
+
   beforeEach(async () => {
+    commitResults = []
     dummyRepoPath = mkdtempSync(
       join(tmpdir(), "gatsby-transform-gitinfo-")
     )
@@ -243,24 +267,32 @@ describe("Returning the latest matching commit", () => {
 
     writeFileSync(`${dummyRepoPath}/README.md`, "Hello")
     await gitRepo.add("README.md")
-    await gitRepo.commit(["Add README", "Changing README, with @magictag in body"], "README.md", {
-      "--date": '"Mon 5 Aug 2005 05:05:05 UTC"',
-    })
+    commitResults.push(
+      await gitRepo.commit(["Add README", "Changing README, with @magictag in body"], "README.md", {
+        "--date": '"Mon 5 Aug 2005 05:05:05 UTC"',
+      })
+    )
 
     writeFileSync(`${dummyRepoPath}/README.md`, "update1")
-    await gitRepo.commit("pickme: update README", "README.md", {
-      "--date": '"Mon 10 Aug 2010 10:10:10 UTC"',
-    })
+    commitResults.push(
+      await gitRepo.commit("pickme: update README", "README.md", {
+        "--date": '"Mon 10 Aug 2010 10:10:10 UTC"',
+      })
+    )
 
     writeFileSync(`${dummyRepoPath}/README.md`, "update2")
-    await gitRepo.commit("content: changing README", "README.md", {
-      "--date": '"Mon 15 Aug 2015 15:15:15 UTC"',
-    })
+    commitResults.push(
+      await gitRepo.commit("content: changing README", "README.md", {
+        "--date": '"Mon 15 Aug 2015 15:15:15 UTC"',
+      })
+    )
 
     writeFileSync(`${dummyRepoPath}/README.md`, "update3")
-    await gitRepo.commit("skip: Changing README", "README.md", {
-      "--date": '"Mon 20 Aug 2020 20:20:20 UTC"',
-    })
+    commitResults.push(
+      await gitRepo.commit("skip: Changing README", "README.md", {
+        "--date": '"Mon 20 Aug 2020 20:20:20 UTC"',
+      })
+    )
   })
 
   it("should add the latest commit without an inverted match in its log message", async () => {
@@ -296,7 +328,13 @@ describe("Returning the latest matching commit", () => {
         value: "2015-08-15T15:15:15Z",
       },
     ])
-    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
+    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
+      {
+        node,
+        name: "gitLogLatestHash",
+        value: commitResults[2].commit,
+      },
+    ])
   })
 
   it("should add the latest commit with a given match in its log message", async () => {
@@ -331,7 +369,13 @@ describe("Returning the latest matching commit", () => {
         value: "2010-08-10T10:10:10Z",
       },
     ])
-    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
+    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
+      {
+        node,
+        name: "gitLogLatestHash",
+        value: commitResults[1].commit,
+      },
+    ])
   })
 
   it("should add the latest commit with a given match in the log message body", async () => {
@@ -366,7 +410,13 @@ describe("Returning the latest matching commit", () => {
         value: "2005-08-05T05:05:05Z",
       },
     ])
-    assertGitLogHash(createNodeField.mock.calls[3].arguments[0])
+    assert.deepStrictEqual(createNodeField.mock.calls[3].arguments, [
+      {
+        node,
+        name: "gitLogLatestHash",
+        value: commitResults[0].commit,
+      },
+    ])
   })
 
   it("should not add any nodes if nothing matches a given match", async () => {
