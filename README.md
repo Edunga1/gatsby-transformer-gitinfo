@@ -5,16 +5,9 @@ This is forked from [CollierCZ/gatsby-transformer-gitinfo](https://github.com/Co
 Add some Git information on `File` fields:
 date, author, email and hash.
 
-This fork was created to add information for files that are added via symlink,
-such as to combine files from other Git repositories.
-The plugin resolves the symlink to the original file
-and base the information on the Git repository at the original location.
-
-You can also set the plugin to return commits that [matches a given regex](#matching-objectoptional).
-
 ## Install
 
-`npm install --save https://github.com/Edunga1/gatsby-transformer-gitinfo.git`
+`npm install github:edunga1/gatsby-transformer-gitinfo`
 
 **Note:** You also need to have `gatsby-source-filesystem` installed
 and configured so it points to your files.
@@ -53,8 +46,8 @@ query {
       node {
         fields {
           gitLogs {
-            authorName
             authorEmail
+            authorName
             date
             hash
           }
@@ -77,8 +70,8 @@ Now you have a `File` node to work with:
             "fields": {
               "gitLogs": [
                 {
-                  "authorName": "John Doe",
                   "authorEmail": "john.doe@github.com",
+                  "authorName": "John Doe",
                   "date": "2020-10-14T12:58:39.000Z",
                   "hash": "c3b6898b288b3d8844ec9e4d1c72dc049b5aeea2"
                 }
@@ -94,7 +87,7 @@ Now you have a `File` node to work with:
 
 ## Configuration options
 
-### `include` [regex][optional]
+### `include` \[regex]\[optional]
 
 This plugin will try to match the absolute path of the file with the `include` regex.
 If it *does not* match, the file will be skipped.
@@ -112,7 +105,7 @@ module.exports = {
 }
 ```
 
-### `ignore` [regex][optional]
+### `ignore` \[regex]\[optional]
 
 This plugin will try to match the absolute path of the file with the `ignore` regex.
 If it *does* match, the file will be skipped.
@@ -130,15 +123,15 @@ module.exports = {
 }
 ```
 
-### `match` [object][optional]
+### `match` \[object]\[optional]
 
 Return the commits where a given regex matches the title or body of the commit log.
 If no commit matches, the file is skipped.
 
 The object has two keys:
 
-* `regex`: [string][required] the [POSIX basic regular expression](https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions) to match
-* `invert`: [bool][optional] whether to invert the match (return the commits that does *not* match the regex) (default: `false`)
+* `regex`: \[string]\[required] the [POSIX basic regular expression](https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions) to match
+* `invert`: \[bool]\[optional] whether to invert the match (return the commits that does *not* match the regex) (default: `false`)
 
 ```javascript
 module.exports = {
@@ -158,7 +151,7 @@ module.exports = {
 }
 ```
 
-### **`dir`** [string][optional]
+### **`dir`** \[string]\[optional]
 
 The root of the git repository.
 Will use the current directory if not provided.
@@ -184,6 +177,6 @@ module.exports = {
 }
 ```
 
-### **`limit`** [number][optional]
+### **`limit`** \[number]\[optional]
 
 Limit the number of commits to search. default is `10`
