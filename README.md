@@ -2,15 +2,15 @@
 
 This is forked from [CollierCZ/gatsby-transformer-gitinfo](https://github.com/CollierCZ/gatsby-transformer-gitinfo)
 
-Add some Git information on `File` fields from the latest (or latest matching) commit:
-date, author, and email.
+Add some Git information on `File` fields:
+date, author, email and hash.
 
 This fork was created to add information for files that are added via symlink,
 such as to combine files from other Git repositories.
 The plugin resolves the symlink to the original file
 and base the information on the Git repository at the original location.
 
-You can also set the plugin to return the latest commit that [matches a given regex](#matching-objectoptional).
+You can also set the plugin to return commits that [matches a given regex](#matching-objectoptional).
 
 ## Install
 
@@ -39,11 +39,10 @@ module.exports = {
 
 Where the _source folder_ `./src/data/` is a git versioned directory.
 
-The plugin will add several fields to `File` nodes:
-`gitLogLatestAuthorName`, `gitLogLatestAuthorEmail`, `gitLogLatestDate` and `gitLogLatestHash`
-These fields are related to the latest commit touching that file.
+The plugin will add a `gitLogs` field to `File` nodes.
+this field is an array of objects, each object representing a commit that touched the file.
 
-If the file is not versionned, these fields will be `null`.
+If the file is not versionned, these fields will be empty.
 
 They are exposed in your graphql schema which you can query:
 
@@ -53,10 +52,12 @@ query {
     edges {
       node {
         fields {
-          gitLogLatestAuthorName
-          gitLogLatestAuthorEmail
-          gitLogLatestDate
-          gitLogLatestHash
+          gitLogs {
+            authorName
+            authorEmail
+            date
+            hash
+          }
         }
       }
     }
@@ -74,10 +75,14 @@ Now you have a `File` node to work with:
         {
           "node": {
             "fields": {
-              "gitLogLatestAuthorName":"John Doe",
-              "gitLogLatestAuthorEmail": "john.doe@github.com",
-              "gitLogLatestDate": "2020-10-14T12:58:39.000Z",
-              "gitLogLatestHash": "c3b6898b288b3d8844ec9e4d1c72dc049b5aeea2"
+              "gitLogs": [
+                {
+                  "authorName": "John Doe",
+                  "authorEmail": "john.doe@github.com",
+                  "date": "2020-10-14T12:58:39.000Z",
+                  "hash": "c3b6898b288b3d8844ec9e4d1c72dc049b5aeea2"
+                }
+              ]
             }
           }
         }
@@ -127,13 +132,13 @@ module.exports = {
 
 ### `match` [object][optional]
 
-Return the latest commit where a given regex matches the title or body of the commit log.
+Return the commits where a given regex matches the title or body of the commit log.
 If no commit matches, the file is skipped.
 
 The object has two keys:
 
 * `regex`: [string][required] the [POSIX basic regular expression](https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions) to match
-* `invert`: [bool][optional] whether to invert the match (return the latest commit that does *not* match the regex) (default: `false`)
+* `invert`: [bool][optional] whether to invert the match (return the commits that does *not* match the regex) (default: `false`)
 
 ```javascript
 module.exports = {
@@ -141,7 +146,7 @@ module.exports = {
     {
       resolve: `gatsby-transformer-gitinfo`,
       options: {
-        // Return the latest commit with a commit message
+        // Return the commits with a commit message
         // that does NOT start with "skip-this:".
         match: {
           regex: "^skip-this:",
@@ -178,3 +183,7 @@ module.exports = {
   ],
 }
 ```
+
+### **`limit`** [number][optional]
+
+Limit the number of commits to search. default is `10`
