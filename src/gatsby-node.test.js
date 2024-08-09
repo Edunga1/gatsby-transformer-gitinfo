@@ -6,9 +6,7 @@ import { onCreateNode } from "./gatsby-node"
 import { beforeEach, describe, it, mock } from "node:test"
 import assert from "node:assert"
 
-/**
-  * @typedef {import("simple-git").CommitResult} CommitResult
-  */
+/** @typedef {import("simple-git").CommitResult} CommitResult */
 
 let createNodeField
 let actions
